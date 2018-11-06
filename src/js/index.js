@@ -29,11 +29,19 @@ const controlSearch = async () => {
         // 5) Render results on UI
         clearLoader();
         searchView.renderResults(state.search.result);
-        console.log(state.search.result);
     }
 };
 
 elements.searchForm.addEventListener('submit', evt => {
     evt.preventDefault();
     controlSearch();
+});
+
+elements.searchResPages.addEventListener('click', evt => {
+    const btn = evt.target.closest('.btn-inline');
+    if(btn) {
+        const goToPage = parseInt(btn.dataset.goto, 10);
+        searchView.clearResults();
+        searchView.renderResults(state.search.result, goToPage);
+    }
 });
