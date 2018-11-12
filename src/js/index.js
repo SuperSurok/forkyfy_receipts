@@ -1,14 +1,16 @@
-import Search from './models/Search';
-import Recipe from './models/Recipe';
-import * as searchView from './views/searchView';
+import Search from "./models/Search";
+import Recipe from "./models/Recipe";
+import * as searchView from "./views/searchView";
+import * as recipeView from "./views/recipeView";
+
 import {elements, renderLoader, clearLoader} from "./views/base";
 
 /* Global state of the app
-* - Search object
-* - Current recipe object
-* - Shopping list object
-* - Liked recipes
-* */
+ * - Search object
+ * - Current recipe object
+ * - Shopping list object
+ * - Liked recipes
+ * */
 const state = {};
 
 // /**
@@ -18,7 +20,7 @@ const controlSearch = async () => {
     // 1) Get query from the view
     const query = searchView.getInput();
 
-    if(query) {
+    if (query) {
         // 2) New search object and add to state
         state.search = new Search(query);
 
@@ -35,20 +37,20 @@ const controlSearch = async () => {
             clearLoader();
             searchView.renderResults(state.search.result);
         } catch (err) {
-            alert('Something wrong with the search...');
+            alert("Something wrong with the search...");
             clearLoader();
         }
     }
 };
 
-elements.searchForm.addEventListener('submit', evt => {
+elements.searchForm.addEventListener("submit", evt => {
     evt.preventDefault();
     controlSearch();
 });
 
-elements.searchResPages.addEventListener('click', evt => {
-    const btn = evt.target.closest('.btn-inline');
-    if(btn) {
+elements.searchResPages.addEventListener("click", evt => {
+    const btn = evt.target.closest(".btn-inline");
+    if (btn) {
         const goToPage = parseInt(btn.dataset.goto, 10);
         searchView.clearResults();
         searchView.renderResults(state.search.result, goToPage);
@@ -60,12 +62,14 @@ elements.searchResPages.addEventListener('click', evt => {
 //  * **/
 
 const controlRecipe = async () => {
-    // Get ID from URL
+    // Get ID from url
     const id = window.location.hash.replace('#', '');
-    console.log(id);
 
-    if(id){
+    if (id) {
         // Prepare UI for changes
+        recipeView.clearRecipe();
+        renderLoader(elements.recipe);
+
 
         // Create new recipe object
         state.recipe = new Recipe(id);
@@ -80,12 +84,19 @@ const controlRecipe = async () => {
             state.recipe.calcServings();
 
             // Render recipe
-            console.log(state.recipe);
+            clearLoader();
+            recipeView.renderRecipe(
+                state.recipe
+            );
+
         } catch (err) {
-            alert('Error processing recipe');
+            console.log(err);
+            alert('Error processing recipe!');
         }
-       
     }
 };
 
-['hashchange', 'load'].forEach(evt => window.addEventListener(evt, controlRecipe));
+
+["hashchange", "load"].forEach(evt =>
+    window.addEventListener(evt, controlRecipe)
+);
