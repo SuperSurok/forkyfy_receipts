@@ -94,7 +94,10 @@ const controlRecipe = async () => {
 
             // Render recipe
             clearLoader();
-            recipeView.renderRecipe(state.recipe);
+            recipeView.renderRecipe(
+                state.recipe,
+                state.likes.isLiked(id)
+                );
         } catch (err) {
             console.log(err);
             alert("Error processing recipe!");
@@ -113,7 +116,7 @@ const controlRecipe = async () => {
 
 const controlList = () => {
     // Create a new list if there in none yet
-    if(!state.list) state.list = new List();
+    if (!state.list) state.list = new List();
 
     // Add each ingredients to the list and UI
     state.recipe.ingredients.forEach(el => {
@@ -124,13 +127,12 @@ const controlList = () => {
 };
 
 
-
 // Handle delete and update list item events
 elements.shopping.addEventListener('click', e => {
     const id = e.target.closest('.shopping__item').dataset.itemid;
 
     // Handle the delete button
-    if(e.target.matches('.shopping__delete, .shopping__delete *')) {
+    if (e.target.matches('.shopping__delete, .shopping__delete *')) {
 
         // Delete from state
         state.list.deleteItem(id);
@@ -139,23 +141,25 @@ elements.shopping.addEventListener('click', e => {
         listView.deleteItem(id);
 
         // Handle the count update
-    } else if(e.target.matches('.shopping__count-value')) {
+    } else if (e.target.matches('.shopping__count-value')) {
         const val = parseFloat(e.target.value);
         state.list.updateCount(id, val);
     }
 });
 
 
-
 /**
  * Like Controller
  **/
-const controlLIke = () => {
-  if(!state.likes) state.likes = new Likes();
-  const currentID = state.recipe.id;
 
-  // User has NOT yet liked current recipe
-    if(!state.likes.isLiked(currentID)) {
+// For testing only. Will be remove in the next version app.
+state.likes = new Likes();
+const controlLIke = () => {
+    if (!state.likes) state.likes = new Likes();
+    const currentID = state.recipe.id;
+
+    // User has NOT yet liked current recipe
+    if (!state.likes.isLiked(currentID)) {
         // Add like to the state
         const newLike = state.likes.addLIke(
             currentID,
@@ -164,22 +168,23 @@ const controlLIke = () => {
             state.recipe.img
         );
         // Toggle the like list
+        likesView.toggleLikeBtn(true);
 
         // Add like to UI list
         console.log(state.likes);
 
-    // User HAS liked current recipe
+        // User HAS liked current recipe
     } else {
         // Remove like from the state
         state.likes.deleteLike(currentID);
 
         // Toggle the like button
-
+        likesView.toggleLikeBtn(false);
         // Remove like from UI list
         console.log(state.likes);
     }
+    likesView.toggleLikeMenu(state.likes.getNumLikes())
 };
-
 
 
 // Handling recipe button clicks
